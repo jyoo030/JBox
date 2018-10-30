@@ -10,5 +10,50 @@
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
 </head>
 <body>
+  <div class="container">
+  	<div class="row">
+  	    <div class="col-12"><h1><a href="../" style="color: #84bd00; text-decoration: none;">Groupify</a><h1></div>
+  	    <div class="col-12">
+          <div id="room-id">Room ID: <%= roomId %></div>
+          <button id="play-btn" class="btn btn-outline-secondary" type="button">Play</button>
+          <button id="pause-btn" class="btn btn-outline-secondary" type="button">Pause</button>
+        </div>
+  	</div>
+  </div>
+
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <script>
+
+  window.onSpotifyWebPlaybackSDKReady = () => {
+    // You can now initialize Spotify.Player and use the SDK
+  };
+
+  (function($) {
+    $(window).on('beforeunload ',function() {
+      $.ajax({
+          type: "POST",
+          url: "host/closeRoom",
+          data: {roomId: '<%= roomId %>'},
+          async: false,
+      });
+    });
+
+    $("#play-btn").click(function() {
+      $.ajax({
+        url: 'host/play',
+        type: 'PUT',
+        data:'roomId=<%= roomId %>'
+      });
+    });
+
+    $("#pause-btn").click(function() {
+      $.ajax({
+        url: 'host/pause',
+        type: 'PUT',
+        data:'roomId=<%= roomId %>'
+      });
+    });
+  })(jQuery);
+  </script>
 </body>
 </html>

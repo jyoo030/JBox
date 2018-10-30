@@ -11,4 +11,61 @@ var spotifyApi = new SpotifyWebApi({
 
 const router = express.Router();
 
+// Send roomId to user FrontEnd
+router.get('/:roomId?', function(request, response, next) {
+  response.render('join.ejs', {roomId: request.params.roomId});
+});
+
+// Verify if valid roomId
+router.post('/joinRoom', async function(req, res) {
+  try {
+    if(map.map[req.body.roomId])
+      res.json({success: true});
+    else
+      res.json({success: false});
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+/**
+@param {trackSearch: 'searchValue'}
+**/
+router.post('/searchTrack', async function(request, response) {
+  const query = request.body.trackSearch
+  try {
+    const token = await spotifyApi.clientCredentialsGrant();
+    await spotifyApi.setAccessToken(token.body['access_token']);
+    const searchResults = await spotifyApi.searchTracks(query);
+    response.json(searchResults.body.tracks.items);
+  } catch(err) {
+    console.log(err);
+  }
+});
+
+/**
+@param {trackId: 'exampleTrackId', roomId: 'example123'}
+**/
+router.post('/addToQueue', async function(request, response) {
+  try {
+    const spotifyUserApi = map.map[request.body.roomId];
+    const token = await spotifyUserApi.refreshAccessToken();
+    await spotifyUserApi.setAccessToken(token.body['access_token']);
+    const userId = await spotifyUserApi.getMe();
+    const playlist = await spotifyUserApi.getUserPlaylists(userId.body.id);
+    playlist.body.items.forEach(async function(list) {
+      try {
+        if(list.name === 'Groupify') {
+          await spotifyUserApi.addTracksToPlaylist(userId.body.id, list.id, ["spotify:track:" + request.body.trackId]);
+          response.json(200);
+        }
+      } catch(error) {
+        console.log(error);
+      }
+    });
+  } catch(error) {
+    console.log(error);
+  }
+});
+
 module.exports = router;
