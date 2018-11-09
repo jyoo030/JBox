@@ -13,6 +13,7 @@ const scopes = ['user-read-private',
 const state = 'state';
 
 var map = {};
+var accessTokens = {};
 
 // http://localhost:8000/host
 var spotifyApi = new SpotifyWebApi({
@@ -58,8 +59,21 @@ router.get('/', async function(request, response, next) {
         })
       }
       map[roomId] = spotifyApi;
+      accessTokens[roomId] = token.body['access_token'];
     }
     response.render('host.ejs', {'roomId': roomId});
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+/**
+@param {roomId: 'string'}
+returns {accessToken: 'string'}
+**/
+router.post('/accessToken', async function(request, response) {
+  try {
+    response.json(accessTokens[request.body.roomId]);
   } catch(error) {
     console.log(error);
   }
