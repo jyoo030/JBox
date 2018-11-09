@@ -106,7 +106,7 @@ router.get('/login', async function(request, response) {
   }
 });
 
-router.put('/play', async function(request, response) {
+router.post('/play', async function(request, response) {
   try {
     const spotifyUserApi = map[request.body.roomId];
     const token = await spotifyUserApi.refreshAccessToken();

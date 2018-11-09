@@ -17,6 +17,8 @@
           <div id="room-id">Room ID: <%= roomId %></div>
           <button id="play-btn" class="btn btn-outline-secondary" type="button">Play</button>
           <button id="pause-btn" class="btn btn-outline-secondary" type="button">Pause</button>
+          <button id="next-btn" class="btn btn-outline-secondary" type="button">Next Track</button>
+          <button id="previous-btn" class="btn btn-outline-secondary" type="button">Previous Track</button>
           <div id="custom-search-input">
               <div class="input-group">
                   <input id="search-input" type="text" class="search-query form-control" placeholder="Song Name, Artist, or both" />
@@ -40,11 +42,12 @@
   </div>
 
   <script>
+  var player;
   window.onSpotifyWebPlaybackSDKReady = () => {
     $.post("/host/accessToken", {roomId: '<%= roomId %>'}, function(data) {
       const token = data;
-      const player = new Spotify.Player({
-        name: 'Web Playback SDK Quick Start Player',
+      player = new Spotify.Player({
+        name: 'Groupify',
         getOAuthToken: cb => { cb(token); }
       });
       player.connect();
@@ -102,16 +105,29 @@
     $("#play-btn").click(function() {
       $.ajax({
         url: 'host/play',
-        type: 'PUT',
-        data:'roomId=<%= roomId %>'
+        type: 'POST',
+        data: {roomId: '<%= roomId %>'}
       });
     });
+
 
     $("#pause-btn").click(function() {
       $.ajax({
         url: 'host/pause',
         type: 'PUT',
         data:'roomId=<%= roomId %>'
+      });
+    });
+
+    $("#previous-btn").click(function() {
+      player.previousTrack().then(() => {
+        console.log('Previous Song!');
+      });
+    });
+
+    $("#next-btn").click(function() {
+      player.nextTrack().then(() => {
+        console.log('Next Song!');
       });
     });
   })(jQuery);
