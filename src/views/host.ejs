@@ -17,9 +17,28 @@
           <div id="room-id">Room ID: <%= roomId %></div>
           <button id="play-btn" class="btn btn-outline-secondary" type="button">Play</button>
           <button id="pause-btn" class="btn btn-outline-secondary" type="button">Pause</button>
+          <div id="custom-search-input">
+              <div class="input-group">
+                  <input id="search-input" type="text" class="search-query form-control" placeholder="Song Name, Artist, or both" />
+                  <div class="input-group-append">
+                    <button id="search-btn" class="btn btn-outline-secondary" type="button">search</button>
+                  </div>
+              </div>
+          </div>
         </div>
   	</div>
+
+    <div class="row">
+      <div class="col-12">
+          <div class="container">
+           <div id="search-result" class="row">
+
+           </div>
+         </div>
+      </div>
+    </div>
   </div>
+
 
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
   <script>
@@ -29,6 +48,44 @@
   };
 
   (function($) {
+    $("#search-btn").click(function() {
+      $.post("/join/searchTrack", {trackSearch: $('#search-input').val()}, function(data) {
+        // Reset results
+        $('#search-result').replaceWith(`<div id="search-result" class="row"></div>`);
+
+        // No search results
+        if(data.length == 0) {
+          $('#search-result').append(`<h4>No results found :(</h4>`);
+        } else {
+          data.forEach(function(tracks) {
+            const songName = tracks.name;
+            const albumName = tracks.album.artists[0].name;
+            const songLink = tracks.album.artists[0].external_urls.spotify;
+            const imgURL = tracks.album.images[1].url;
+            $('#search-result').append(
+              `<div class="col-12">
+                <img src="${imgURL}" alt="${songName}">
+                <a href="${songLink}"><button type="button" class="btn btn-success">${songName} - ${albumName}</button></a>
+                <button type="button" class="btn btn-outline-success queue" id=${tracks.id}>Add to queue</button>
+              </div>`
+            );
+          })
+        }
+      });
+    });
+
+    $(document).on("click", ".queue", function(event){
+      $.post("/join/addToQueue", {trackId: this.id, roomId: '<%= roomId %>'}, function(data) {
+
+      });
+    });
+
+    $(document).on("keypress", "#search-input", function(e) {
+      if (e.which == 13) {
+          $('#search-btn').click();
+      }
+    });
+
     $(window).on('beforeunload ',function() {
       $.ajax({
           type: "POST",
