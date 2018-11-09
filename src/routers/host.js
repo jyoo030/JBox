@@ -14,8 +14,9 @@ const state = 'state';
 
 var map = {};
 
+// http://localhost:8000/host
 var spotifyApi = new SpotifyWebApi({
-  redirectUri: 'https://c0097b21.ngrok.io/host', // TODO share updated map with join so join can call add to queue with specific spotify obj
+  redirectUri: 'https://10b3e502.ngrok.io/host', // TODO share updated map with join so join can call add to queue with specific spotify obj
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 });
@@ -31,7 +32,31 @@ router.get('/', async function(request, response, next) {
       const token = await spotifyApi.authorizationCodeGrant(code);
       await spotifyApi.setAccessToken(token.body['access_token']);
       await spotifyApi.setRefreshToken(token.body['refresh_token']);
-      //await spotifyApi.createPlaylist((await spotifyApi.getMe()).body.id, 'Groupify', { 'public' : true });
+
+      // Checks if Groupify playlist exists
+      const userId = await spotifyApi.getMe();
+      const playlists = await spotifyApi.getUserPlaylists(userId.body.id);
+      var found = false
+      var playlistId = '';
+      playlists.body.items.forEach(function(list) {
+          if(list.name === 'Groupify') {
+            playlistId = list.id;
+            found = true;
+          }
+      });
+      // not found create, else delete every song in playlist
+      if (!found) {
+        await spotifyApi.createPlaylist((await spotifyApi.getMe()).body.id, 'Groupify', { 'public' : true });
+      } else {
+        const songs = await spotifyApi.getPlaylistTracks(userId.body.id, playlistId);
+        songs.body.items.forEach(async function(song) {
+          try{
+            await spotifyApi.removeTracksFromPlaylist(userId.body.id, playlistId, [{uri : song.track.uri}]);
+          } catch(err) {
+            console.log(err)
+          }
+        })
+      }
       map[roomId] = spotifyApi;
     }
     response.render('host.ejs', {'roomId': roomId});
