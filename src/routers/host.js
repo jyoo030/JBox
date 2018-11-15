@@ -17,7 +17,7 @@ var accessTokens = {};
 
 // http://localhost:8000/host
 var spotifyApi = new SpotifyWebApi({
-  redirectUri: 'https://62d6845b.ngrok.io/host', // TODO share updated map with join so join can call add to queue with specific spotify obj
+  redirectUri: 'https://e5fd7507.ngrok.io/host', // TODO share updated map with join so join can call add to queue with specific spotify obj
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 });
