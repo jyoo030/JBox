@@ -16,6 +16,11 @@
         <div class="col-2"><h1><a class="logo" href="../" style="color: #84bd00; text-decoration: none;">Groupify</a></h1>
           <div id="room-id" style="color:white">Room ID: <%= roomId %></div>
         </div>
+        <div class="col-2" style="padding: 0;">
+          <div class="btn-group btn-group-lg" role="group" aria-label="group">
+            <button id="Vote-btn" class="btn btn-outline-success" type="button">Vote to Skip</button>
+          </div>
+        </div>
           <div id="col-8 custom-search-input" style="padding: 10px;">
               <div class="input-group input-group-lg">
                   <input id="search-input" type="text" class="search-query form-control " placeholder="Song Name,Artist,or both" />
@@ -81,6 +86,12 @@
 
     $(document).on("click", ".queue", function(event){
       $.post("/join/addToQueue", {trackId: this.id, roomId: '<%= roomId %>'}, function(data) {
+
+      });
+    });
+
+    $("#vote-btn").click(function() {
+      $.post("/host/vote", {roomId: '<%= roomId %>'}, function(data) {
 
       });
     });

@@ -14,6 +14,7 @@ const state = 'state';
 
 var map = {};
 var accessTokens = {};
+var playlists = {};
 
 // http://localhost:8000/host
 var spotifyApi = new SpotifyWebApi({
@@ -43,6 +44,7 @@ router.get('/', async function(request, response, next) {
           if(list.name === 'Groupify') {
             playlistId = list.id;
             found = true;
+            playlists[roomId] = playlistId;
           }
       });
       // not found create, else delete every song in playlist
@@ -137,6 +139,32 @@ router.put('/pause', async function(request, response) {
   } catch(error) {
     console.log(error);
   }
+});
+
+router.post('/getQueue', async function(request, response) {
+  try {
+    const spotifyUserApi = map[request.body.roomId];
+    const token = await spotifyUserApi.refreshAccessToken();
+    await spotifyUserApi.setAccessToken(token.body['access_token']);
+
+    const userId = await spotifyUserApi.getMe();
+    const playlists = await spotifyApi.getUserPlaylists(userId.body.id);
+    var playlistId = '';
+    playlists.body.items.forEach(function(list) {
+        if(list.name === 'Groupify') {
+          playlistId = list.id;
+        }
+    });
+
+    const tracks = await spotifyUserApi.getPlaylistTracks(userId.body.id, playlistId);
+    response.json(tracks.body);
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+router.post('/getUserCount', async function(request, response) {
+  
 });
 
 module.exports = router;

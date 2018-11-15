@@ -22,6 +22,7 @@
           <button id="pause-btn" class="btn btn-outline-success" type="button">Pause</button>
           <button id="previous-btn" class="btn btn-outline-success" type="button">Previous</button>
           <button id="next-btn" class="btn btn-outline-success" type="button">Next</button>
+          <button id="test-btn" class="btn btn-outline-success" type="button">Test</button>
           </div>
         </div>
           <div id="col-8 custom-search-input" style="padding: 10px;">
@@ -99,6 +100,14 @@
       });
     });
 
+    $("test-btn").click(function() {
+      $.ajax({
+        url: 'host/getQueue',
+        type: 'POST',
+        data: {roomId: '<%= roomId %>'}
+      });
+    });
+
     $(document).on("click", ".queue", function(event){
       $.post("/join/addToQueue", {trackId: this.id, roomId: '<%= roomId %>'}, function(data) {
 
@@ -146,6 +155,12 @@
     $("#next-btn").click(function() {
       player.nextTrack().then(() => {
         console.log('Next Song!');
+      });
+    });
+
+    $("#test-btn").click(function() {
+      $.post("/host/getQueue", {roomId: '<%= roomId %>'}, function(data) {
+
       });
     });
   })(jQuery);
