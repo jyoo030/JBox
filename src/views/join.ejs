@@ -1,40 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head >
   <meta charset="UTF-8">
   <title>Groupify</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
 </head>
 <body>
-  <div class="container">
-  	<div class="row">
-  	    <div class="col-12"><h1><a href="../" style="color: #84bd00; text-decoration: none;">Groupify</a><h1></div>
-  	    <div class="col-12">
-          <div id="room-id"><%= roomId %></div>
-    	    <div id="custom-search-input">
-              <div class="input-group">
-                  <input id="search-input" type="text" class="search-query form-control" placeholder="Song Name, Artist, or both" />
+
+  <nav class="navbar navbar-expand-sm bg-dark navbar-dark" style ="margin: 0px; padding: 0;">
+    <div class="container-fluid " style =" margin: 0px; padding: 0px; white-space: nowrap;">
+        <div class="col-2"><h1><a class="logo" href="../" style="color: #84bd00; text-decoration: none;">Groupify</a></h1>
+          <div id="room-id" style="color:white">Room ID: <%= roomId %></div>
+        </div>
+          <div id="col-8 custom-search-input" style="padding: 10px;">
+              <div class="input-group input-group-lg">
+                  <input id="search-input" type="text" class="search-query form-control " placeholder="Song Name,Artist,or both" />
                   <div class="input-group-append">
-                    <button id="search-btn" class="btn btn-outline-secondary" type="button">search</button>
+                    <button id="search-btn" class="btn btn-success" type="button" >Search</button>
                   </div>
               </div>
           </div>
-        </div>
-  	</div>
+          </div>
 
-    <div class="row">
-      <div class="col-12">
-          <div class="container">
+      </div>
+</nav>
+
+
+      <div class="col-12" style="background-color:lightgray; min-height: 800px; padding: 0px" >
+          <div class="container-fluid" >
            <div id="search-result" class="row">
-
            </div>
          </div>
       </div>
-    </div>
-  </div>
 
   <script>
   (function($) {
@@ -42,7 +43,6 @@
       $.post("/join/searchTrack", {trackSearch: $('#search-input').val()}, function(data) {
         // Reset results
         $('#search-result').replaceWith(`<div id="search-result" class="row"></div>`);
-
         // No search results
         if(data.length == 0) {
           $('#search-result').append(`<h4>No results found :(</h4>`);
@@ -51,13 +51,28 @@
             const songName = tracks.name;
             const albumName = tracks.album.artists[0].name;
             const songLink = tracks.album.artists[0].external_urls.spotify;
-            const imgURL = tracks.album.images[1].url;
+            const imgURL = tracks.album.images[0].url;
             $('#search-result').append(
-              `<div class="col-12">
+              `<div class="col-3"style="styles.gallery.hover;padding:10px 0px 10px 7px;background-color:lightgray">
+                <a target="_blank" href="${imgURL}">
+                <img
+                  src="${imgURL}"
+                  class="img-thumbnail"
+                  alt="${songName}"
+                  width="300"
+                  height="300"
+                  style="styles.gallery.img;"
+                  />
+                </a>
+              <div style="styles.desc">${songName} - ${albumName}</div>
+              <a href="${songLink}"><button type="button" class="btn btn-success">Play</button></a>
+              <button type="button" class="btn btn-outline-success queue" id=${tracks.id}>Add</button>
+              </div>`
+             /* `<div class="col-12">
                 <img src="${imgURL}" alt="${songName}">
                 <a href="${songLink}"><button type="button" class="btn btn-success">${songName} - ${albumName}</button></a>
                 <button type="button" class="btn btn-outline-success queue" id=${tracks.id}>Add to queue</button>
-              </div>`
+              </div>` */
             );
           })
         }
