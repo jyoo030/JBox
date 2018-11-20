@@ -159,7 +159,11 @@
     });
 
     $("#test-btn").click(function() {
-      $.post("/host/getQueue", {roomId: '<%= roomId %>'}, function(data) {
+      // $.post("/host/getQueue", {roomId: '<%= roomId %>'}, function(data) {
+      //
+      // });
+
+      $.post("/host/getUserCount", {roomId: '<%= roomId %>'}, function(data) {
 
       });
     });

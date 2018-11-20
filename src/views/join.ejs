@@ -101,6 +101,15 @@
           $('#search-btn').click();
       }
     });
+
+    $(window).on('beforeunload ',function() {
+      $.ajax({
+          type: "POST",
+          url: "/join/closeRoom",
+          data: {roomId: '<%= roomId %>'},
+          async: false,
+      });
+    });
   })(jQuery);
   </script>
 </body>

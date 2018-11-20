@@ -14,11 +14,12 @@ const state = 'state';
 
 var map = {};
 var accessTokens = {};
-var playlists = {};
+var users = {};
+var votes = {};
 
 // http://localhost:8000/host
 var spotifyApi = new SpotifyWebApi({
-  redirectUri: 'https://e5fd7507.ngrok.io/host', // TODO share updated map with join so join can call add to queue with specific spotify obj
+  redirectUri: 'https://206bbd62.ngrok.io/host', // TODO share updated map with join so join can call add to queue with specific spotify obj
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 });
@@ -44,7 +45,6 @@ router.get('/', async function(request, response, next) {
           if(list.name === 'Groupify') {
             playlistId = list.id;
             found = true;
-            playlists[roomId] = playlistId;
           }
       });
       // not found create, else delete every song in playlist
@@ -61,6 +61,8 @@ router.get('/', async function(request, response, next) {
         })
       }
       map[roomId] = spotifyApi;
+      users[roomId] = 0;
+      votes[roomId] = 0;
       accessTokens[roomId] = token.body['access_token'];
     }
     response.render('host.ejs', {'roomId': roomId});
@@ -164,8 +166,19 @@ router.post('/getQueue', async function(request, response) {
 });
 
 router.post('/getUserCount', async function(request, response) {
-  
+  response.json(users[request.body.roomId]);
+});
+
+router.post('/vote', async function(request, response) {
+  const roomId = request.body.roomId;
+  vote[roomId]++;
+  if(vote[roomId] >= users[roomId]/2) {
+    vote[roomId] = 0;
+    //TODO Skip to next song: @JUSTIN idk where u found the play api for play button above but is there a next?
+  }
+  response.json(200);
 });
 
 module.exports = router;
 module.exports.map = map;
+module.exports.users = users;

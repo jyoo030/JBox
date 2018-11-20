@@ -2,7 +2,7 @@ const SpotifyWebApi = require('spotify-web-api-node');
 const express = require('express');
 const bodyParser = require('body-parser');
 const Request = require('request');
-const map = require('./host');
+const host = require('./host');
 
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
@@ -19,8 +19,10 @@ router.get('/:roomId?', function(request, response, next) {
 // Verify if valid roomId
 router.post('/joinRoom', async function(req, res) {
   try {
-    if(map.map[req.body.roomId])
+    if(host.map[req.body.roomId]) {
+      host.users[req.body.roomId]++;
       res.json({success: true});
+    }
     else
       res.json({success: false});
   } catch(error) {
@@ -48,7 +50,7 @@ router.post('/searchTrack', async function(request, response) {
 **/
 router.post('/addToQueue', async function(request, response) {
   try {
-    const spotifyUserApi = map.map[request.body.roomId];
+    const spotifyUserApi = host.map[request.body.roomId];
     const token = await spotifyUserApi.refreshAccessToken();
     await spotifyUserApi.setAccessToken(token.body['access_token']);
     const userId = await spotifyUserApi.getMe();
@@ -63,6 +65,15 @@ router.post('/addToQueue', async function(request, response) {
         console.log(error);
       }
     });
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+router.post('/closeRoom', async function(request, response) {
+  try {
+    host.users[request.body.roomId]--;
+    response.json({success: true});
   } catch(error) {
     console.log(error);
   }
