@@ -16,13 +16,16 @@
         <div class="col-2"><h1><a class="logo" href="../" style="color: #84bd00; text-decoration: none;">Groupify</a></h1>
           <div id="room-id" style="color:white">Room ID: <%= roomId %></div>
         </div>
-          <div class="col-2" style="padding: 0;">
+        <div class="col-2" style="padding: 0;">
           <div class="btn-group btn-group-lg" role="group" aria-label="group">
-          <button id="play-btn" class="btn btn-outline-success" type="button">Play</button>
-          <button id="pause-btn" class="btn btn-outline-success" type="button">Pause</button>
-          <button id="previous-btn" class="btn btn-outline-success" type="button">Previous</button>
-          <button id="next-btn" class="btn btn-outline-success" type="button">Next</button>
-          <button id="test-btn" class="btn btn-outline-success" type="button">Test</button>
+            <button id="play-btn" class="btn btn-outline-success" type="button">Play</button>
+            <button id="pause-btn" class="btn btn-outline-success" type="button">Pause</button>
+            <button id="previous-btn" class="btn btn-outline-success" type="button">Previous</button>
+            <button id="next-btn" class="btn btn-outline-success" type="button">Next</button>
+            <button id="test-btn" class="btn btn-outline-success" type="button">Test</button>
+          </div>
+          <div>
+            <label style="color:white" class="checkbox-inline"><input id="duplicate" type="checkbox" value="">Duplicates</label>
           </div>
         </div>
           <div id="col-8 custom-search-input" style="padding: 10px;">
@@ -60,6 +63,8 @@
   };
 
   (function($) {
+    var duplicates = false;
+
     $("#search-btn").click(function() {
       $.post("/join/searchTrack", {trackSearch: $('#search-input').val()}, function(data) {
         // Reset results
@@ -97,6 +102,18 @@
             );
           })
         }
+      });
+    });
+
+    $('#duplicate').change(function() {
+      var duplicates = false;
+      if(this.checked) {
+        duplicates = true;
+      } else {
+        duplicates = false;
+      }
+      $.post("/host/duplicates", {trackId: this.id, roomId: '<%= roomId %>', duplicates}, function(data) {
+
       });
     });
 
@@ -159,13 +176,13 @@
     });
 
     $("#test-btn").click(function() {
-      // $.post("/host/getQueue", {roomId: '<%= roomId %>'}, function(data) {
-      //
-      // });
-
-      $.post("/host/getUserCount", {roomId: '<%= roomId %>'}, function(data) {
+      $.post("/host/getQueue", {roomId: '<%= roomId %>'}, function(data) {
 
       });
+
+      // $.post("/host/getUserCount", {roomId: '<%= roomId %>'}, function(data) {
+      //
+      // });
     });
   })(jQuery);
   </script>

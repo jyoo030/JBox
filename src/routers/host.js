@@ -16,6 +16,7 @@ var map = {};
 var accessTokens = {};
 var users = {};
 var votes = {};
+var duplicates = {};
 
 // http://localhost:8000/host
 var spotifyApi = new SpotifyWebApi({
@@ -63,6 +64,7 @@ router.get('/', async function(request, response, next) {
       map[roomId] = spotifyApi;
       users[roomId] = 0;
       votes[roomId] = 0;
+      duplicates[roomId] = false;
       accessTokens[roomId] = token.body['access_token'];
     }
     response.render('host.ejs', {'roomId': roomId});
@@ -179,6 +181,12 @@ router.post('/vote', async function(request, response) {
   response.json(200);
 });
 
+router.post('/duplicates', async function(req, res) {
+  duplicates[req.body.roomId] = req.body.duplicates;
+  res.json(200);
+});
+
 module.exports = router;
 module.exports.map = map;
 module.exports.users = users;
+module.exports.duplicates = duplicates;

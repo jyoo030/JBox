@@ -55,10 +55,23 @@ router.post('/addToQueue', async function(request, response) {
     await spotifyUserApi.setAccessToken(token.body['access_token']);
     const userId = await spotifyUserApi.getMe();
     const playlist = await spotifyUserApi.getUserPlaylists(userId.body.id);
+    const duplicate = host.duplicates[request.body.roomId];
     playlist.body.items.forEach(async function(list) {
       try {
         if(list.name === 'Groupify') {
-          await spotifyUserApi.addTracksToPlaylist(userId.body.id, list.id, ["spotify:track:" + request.body.trackId]);
+          // duplicates not allowed
+          if(!duplicate) {
+            const songs = await spotifyUserApi.getPlaylistTracks(userId.body.id, list.id);
+            var found = false;
+            songs.body.items.forEach(async function(song) {
+              if(song.track.id == request.body.trackId)
+                found = true;
+            });
+            if(!found) // only add if not already in playlist
+              await spotifyUserApi.addTracksToPlaylist(userId.body.id, list.id, ["spotify:track:" + request.body.trackId]);
+          }
+          else // duplicates allowed
+            await spotifyUserApi.addTracksToPlaylist(userId.body.id, list.id, ["spotify:track:" + request.body.trackId]);
           response.json(200);
         }
       } catch(error) {
