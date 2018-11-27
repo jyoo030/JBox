@@ -9,21 +9,25 @@
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
 </head>
-<body>
+<body class="container-fluid" style=" background-color:greenyellow; padding:0px; margin: 0px ">
 
-  <nav class="navbar navbar-expand-sm bg-dark navbar-dark" style ="margin: 0px; padding: 0;">
-    <div class="container-fluid " style =" margin: 0px; padding: 0px; white-space: nowrap;">
+  <nav class="navbar nav-fill bg-dark navbar-dark" style ="margin: 0px; padding: 0px;">
+    <div class="container-fluid " style =" margin: 0px; padding: 0px;white-space: nowrap;">
         <div class="col-2"><h1><a class="logo" href="../" style="color: #84bd00; text-decoration: none;">Groupify</a></h1>
           <div id="room-id" style="color:white">Room ID: <%= roomId %></div>
         </div>
-          <div class="col-2" style="padding: 0;">
+        <div class="col-2" style="padding: 0;">
           <div class="btn-group btn-group-lg" role="group" aria-label="group">
-          <button id="play-btn" class="btn btn-outline-success" type="button">Play</button>
-          <button id="pause-btn" class="btn btn-outline-success" type="button">Pause</button>
-          <button id="previous-btn" class="btn btn-outline-success" type="button">Previous</button>
-          <button id="next-btn" class="btn btn-outline-success" type="button">Next</button>
+            <button id="play-btn" class="btn btn-outline-success" type="button">Play</button>
+            <button id="pause-btn" class="btn btn-outline-success" type="button">Pause</button>
+            <button id="previous-btn" class="btn btn-outline-success" type="button">Previous</button>
+            <button id="next-btn" class="btn btn-outline-success" type="button">Next</button>
+            <button id="test-btn" class="btn btn-outline-success" type="button">Test</button>
           </div>
-        </div>
+          <div>
+            <label style="color:white" class="checkbox-inline"><input id="duplicate" type="checkbox" value="">Duplicates</label>
+          </div>
+        </div class="main">
           <div id="col-8 custom-search-input" style="padding: 10px;">
               <div class="input-group input-group-lg">
                   <input id="search-input" type="text" class="search-query form-control " placeholder="Song Name,Artist,or both" />
@@ -33,22 +37,20 @@
               </div>
           </div>
           </div>
- 
       </div>
 </nav>
+<div class="col-12">
+  <div class="row" style="padding: 0px">
+    <div class="col-4 container-fluid" style="background-color:azure; min-height: 800px;"> 
+    <div class="col-12"><div id="queue" class="row"></div></div>
+    </div>
 
+    <div class="col-8 container-fluid" style="background-color:lightgray; min-height: 800px; padding: 0px;" >
+    <div class="col-12"><div id="search-result" class="row"></div></div>
+    </div>
 
-      <div class="col-12" style="background-color:lightgray; min-height: 800px; padding: 0px" >
-          <div class="container-fluid" >
-           <div id="search-result" class="row">
-           </div>
-         </div>
-      </div>
-
-   
-    
- 
-
+  </div>
+</div>
   <script>
   var player;
   window.onSpotifyWebPlaybackSDKReady = () => {
@@ -62,6 +64,7 @@
     });
   };
   (function($) {
+    var duplicates = false;
     $("#search-btn").click(function() {
       $.post("/join/searchTrack", {trackSearch: $('#search-input').val()}, function(data) {
         // Reset results
@@ -76,14 +79,14 @@
             const songLink = tracks.album.artists[0].external_urls.spotify;
             const imgURL = tracks.album.images[0].url;
             $('#search-result').append(
-              `<div class="col-3"style="styles.gallery.hover;padding:10px 0px 10px 7px;background-color:lightgray">
+              `<div class="col-4"style="styles.gallery.hover;padding:10px 0px 15px 10px; background-color:lightgray">
                 <a target="_blank" href="${imgURL}">
                 <img
                   src="${imgURL}"
                   class="img-thumbnail"
                   alt="${songName}"
-                  width="300"
-                  height="300"
+                  width="220"
+                  height="220"
                   style="styles.gallery.img;"
                   />
                 </a>
@@ -91,7 +94,6 @@
               <a href="${songLink}"><button type="button" class="btn btn-success">Play</button></a>
               <button type="button" class="btn btn-outline-success queue" id=${tracks.id}>Add</button>
               </div>`
-
              /* `<div class="col-12">
                 <img src="${imgURL}" alt="${songName}">
                 <a href="${songLink}"><button type="button" class="btn btn-success">${songName} - ${albumName}</button></a>
@@ -100,6 +102,23 @@
             );
           })
         }
+      });
+    });
+    $('#duplicate').change(function() {
+      var duplicates = false;
+      if(this.checked) {
+        duplicates = true;
+      } else {
+        duplicates = false;
+      }
+      $.post("/host/duplicates", {trackId: this.id, roomId: '<%= roomId %>', duplicates}, function(data) {
+      });
+    });
+    $("test-btn").click(function() {
+      $.ajax({
+        url: 'host/getQueue',
+        type: 'POST',
+        data: {roomId: '<%= roomId %>'}
       });
     });
     $(document).on("click", ".queue", function(event){
@@ -142,6 +161,31 @@
       player.nextTrack().then(() => {
         console.log('Next Song!');
       });
+    });
+    $("#test-btn").click(function() {
+      $.post("/host/getQueue", {roomId: '<%= roomId %>'}, function(data) {
+        console.log("I got the Queue")
+        console.log(data.items)
+        $('#queue').replaceWith(`<div id="queue" class="row"></div>`);
+        for(i = 0;i<data.items.length;i++){
+          console.log(data.items[i].track.artists[0].name)
+          console.log(data.items[i].track.name)
+          const name = data.items[i].track.artists[0].name;
+          const songName = data.items[i].track.name;
+          $('#queue').append(
+              `<div class="col-12"style="styles.gallery.hover;padding:o px;">
+              <div style="styles.desc">${songName} - ${name}</div>
+              </div>`
+          );
+        }
+        
+        console.log(data.items.length)
+        //test = JSON.stringify(data.items[0].name);
+        //console.log(test)
+      });
+      // $.post("/host/getUserCount", {roomId: '<%= roomId %>'}, function(data) {
+      //
+      // });
     });
   })(jQuery);
   </script>
