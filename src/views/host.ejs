@@ -21,7 +21,7 @@
           <div id="col-7 custom-search-input" style="padding: 10px;">
             
               <div class="input-group input-group-lg">
-                  <h2><span class="badge badge-success mt-2" style="padding-right: 20px 10px; margin:5px 10px 5px 5px">#</span></h2>
+                  <h2><span id="userCount" class="badge badge-success mt-2" style="padding-right: 20px 10px; margin:5px 10px 5px 5px"></span></h2>
                   <input id="search-input" type="text" class="search-query form-control " placeholder="Song Name,Artist,or both" />
                   <div class="input-group-append">
                     <button id="search-btn" class="btn btn-success" type="button" >Search</button>
@@ -34,12 +34,14 @@
 <div class="col-12">
   <div class="row" style="padding: 0px">
     <div class="col-4 container-fluid" style="background-color:rgb(206, 205, 205); min-height: 800px; margin:0px"> 
-    <div class="col-12"><div id="queue" class="row"></div></div>
+    <div id="queue" class="row"></div>
     </div>
-
-    <div class="col-8 container-fluid" style="background-color:lightgray; min-height: 800px; padding: 0px;" >
+  
+ 
+    <div class="col-8 container-fluid" style="background-color:lightgray; min-height: 800px; padding: 0px; margin:0px" >
     <div class="col-12"><div id="search-result" class="row"></div></div>
     </div>
+
 
   </div>
 </div>
@@ -54,6 +56,7 @@
       <button id="test-btn" class="btn btn-outline-success" type="button">Test</button>
     </div>
     <label style=" padding:8px 5px 14px 5px;" class="checkbox-inline border border-success rounded text-success"><input id="duplicate" type="checkbox" value="">Duplicates </label>
+    <label style="padding:8px 5px 14px 5px;" class="checkbox-inline border border-success rounded text-success"><input id="repeat" type="checkbox" value="">Repeat</label>
   </div>
 </nav>
   <script>
@@ -84,14 +87,14 @@
             const songLink = tracks.album.artists[0].external_urls.spotify;
             const imgURL = tracks.album.images[0].url;
             $('#search-result').append(
-              `<div class="col-4"style="styles.gallery.hover;padding:10px 0px 15px 10px; background-color:lightgray">
+              `<div class="col-4"style="styles.gallery.hover; padding: 0px 0px 20px 15px; background-color:lightgray">
                 <a target="_blank" href="${imgURL}">
                 <img
                   src="${imgURL}"
                   class="img-thumbnail"
                   alt="${songName}"
-                  width="220"
-                  height="220"
+                  width="250"
+                  height="250"
                   style="styles.gallery.img;"
                   />
                 </a>
@@ -119,6 +122,18 @@
       $.post("/host/duplicates", {trackId: this.id, roomId: '<%= roomId %>', duplicates}, function(data) {
       });
     });
+
+    $('#repeat').change(function() {
+      if(this.checked) {
+        $.post("/host/repeatOn", {roomId: '<%= roomId %>'}, function(data) {
+        });
+      } else {
+        $.post("/host/repeatOff", {roomId: '<%= roomId %>'}, function(data) {
+        });
+      }
+    });
+
+
     $("test-btn").click(function() {
       $.ajax({
         url: 'host/getQueue',
@@ -126,9 +141,28 @@
         data: {roomId: '<%= roomId %>'}
       });
     });
+
+
     $(document).on("click", ".queue", function(event){
       $.post("/join/addToQueue", {trackId: this.id, roomId: '<%= roomId %>'}, function(data) {
+        $.post("/host/getQueue", {roomId: '<%= roomId %>'}, function(data) {
+        console.log("I got the Queue")
+        console.log(data.items)
+        $('#queue').replaceWith(`<div id="queue" class="row"></div>`);
+        for(i = 0;i<data.items.length;i++){
+          console.log(data.items[i].track.artists[0].name)
+          console.log(data.items[i].track.name)
+          const name = data.items[i].track.artists[0].name;
+          const songName = data.items[i].track.name;
+          $('#queue').append(
+              `<div class="col-12 shadow-sm p-2 mb-1 bg-white"style="padding: 0px; margin: 0px">
+              <div style="margin:0px; padding:0px">${songName} - ${name}</div>
+              </div>`
+          );
+        }
       });
+      });
+      
     });
     $(document).on("keypress", "#search-input", function(e) {
       if (e.which == 13) {
@@ -168,6 +202,10 @@
       });
     });
     $("#test-btn").click(function() {
+      $.post("/host/getUserCount", {roomId: '<%= roomId %>'}, function(data) {
+        console.log(data);
+        $('#userCount').text(data);
+       });
       $.post("/host/getQueue", {roomId: '<%= roomId %>'}, function(data) {
         console.log("I got the Queue")
         console.log(data.items)
@@ -178,7 +216,7 @@
           const name = data.items[i].track.artists[0].name;
           const songName = data.items[i].track.name;
           $('#queue').append(
-              `<div class="col-12 shadow-sm p-4 mb-4"style="padding: -10px; margin: 0px">
+              `<div class="col-12 shadow-sm p-2 mb-1 bg-white"style="padding: -10px; margin: 0px">
               <div style="margin:0px">${songName} - ${name}</div>
               </div>`
           );
@@ -188,9 +226,11 @@
         //test = JSON.stringify(data.items[0].name);
         //console.log(test)
       });
-      // $.post("/host/getUserCount", {roomId: '<%= roomId %>'}, function(data) {
-      //
-      // });
+
+     // $("#test-btn").click(function() {
+       $.post("/host/getUserCount", {roomId: '<%= roomId %>'}, function(data) {
+       });
+     // }); 
     });
   })(jQuery);
   </script>
