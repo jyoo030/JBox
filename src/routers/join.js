@@ -72,6 +72,7 @@ router.post('/addToQueue', async function(request, response) {
           }
           else // duplicates allowed
             await spotifyUserApi.addTracksToPlaylist(userId.body.id, list.id, ["spotify:track:" + request.body.trackId]);
+          host.map[request.body.roomId] = spotifyUserApi;
           response.json(200);
         }
       } catch(error) {

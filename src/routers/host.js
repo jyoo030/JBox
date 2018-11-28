@@ -12,7 +12,7 @@ const scopes = ['user-read-private',
                 'user-read-birthdate',
                 'user-read-playback-state'];
 const state = 'state';
-
+//https://github.com/spotify/web-api/issues/537
 var map = {};
 var accessTokens = {};
 var users = {};
@@ -22,7 +22,7 @@ var firstPlay = {};
 
 // http://localhost:8000/host
 var spotifyApi = new SpotifyWebApi({
-  redirectUri: 'https://ee9fb679.ngrok.io/host', // TODO share updated map with join so join can call add to queue with specific spotify obj
+  redirectUri: 'https://7c5917dc.ngrok.io/host', // TODO share updated map with join so join can call add to queue with specific spotify obj
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 });
@@ -115,12 +115,16 @@ router.get('/login', async function(request, response) {
   }
 });
 
+var testDevice;
+var testUser;
+var testList;
 router.post('/play', async function(request, response) {
   try {
     const spotifyUserApi = map[request.body.roomId];
     const token = await spotifyUserApi.refreshAccessToken();
     await spotifyUserApi.setAccessToken(token.body['access_token']);
     const userId = await spotifyUserApi.getMe();
+    testUser = userId;
     var playlist = await spotifyUserApi.getUserPlaylists(userId.body.id);
     const devicesList = await spotifyUserApi.getMyDevices();
     var deviceId;
@@ -128,6 +132,7 @@ router.post('/play', async function(request, response) {
       try {
         if(device.name === 'Groupify'){
           deviceId = device.id;
+          testDevice = device.id;
         }
       } catch(error){
         console.log(error);
@@ -137,6 +142,7 @@ router.post('/play', async function(request, response) {
       try {
         if(list.name === 'Groupify' && firstPlay[request.body.roomId] === false) {
           // await spotifyUserApi.transferMyPlayback({deviceIds: [deviceId]});
+          testList = list;
           await spotifyUserApi.play({device_id: deviceId, context_uri: "spotify:user:" + userId.body.id + ":playlist:" + list.id});
           firstPlay[request.body.roomId] = true;
           response.json(200);
