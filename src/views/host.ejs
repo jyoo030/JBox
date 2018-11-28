@@ -9,27 +9,19 @@
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
 </head>
-<body class="container-fluid" style=" background-color:greenyellow; padding:0px; margin: 0px ">
+<body class="container-fluid" style="padding:0px; margin: 0px ">
 
   <nav class="navbar nav-fill bg-dark navbar-dark" style ="margin: 0px; padding: 0px;">
     <div class="container-fluid " style =" margin: 0px; padding: 0px;white-space: nowrap;">
-        <div class="col-2"><h1><a class="logo" href="../" style="color: #84bd00; text-decoration: none;">Groupify</a></h1>
+        <div class="col-4"><h1><a class="logo" href="../" style="color: #84bd00; text-decoration: none;">Groupify</a></h1>
           <div id="room-id" style="color:white">Room ID: <%= roomId %></div>
         </div>
-        <div class="col-2" style="padding: 0;">
-          <div class="btn-group btn-group-lg" role="group" aria-label="group">
-            <button id="play-btn" class="btn btn-outline-success" type="button">Play</button>
-            <button id="pause-btn" class="btn btn-outline-success" type="button">Pause</button>
-            <button id="previous-btn" class="btn btn-outline-success" type="button">Previous</button>
-            <button id="next-btn" class="btn btn-outline-success" type="button">Next</button>
-            <button id="test-btn" class="btn btn-outline-success" type="button">Test</button>
-          </div>
-          <div>
-            <label style="color:white" class="checkbox-inline"><input id="duplicate" type="checkbox" value="">Duplicates</label>
-          </div>
-        </div class="main">
-          <div id="col-8 custom-search-input" style="padding: 10px;">
+        
+        
+          <div id="col-7 custom-search-input" style="padding: 10px;">
+            
               <div class="input-group input-group-lg">
+                  <h2><span class="badge badge-success mt-2" style="padding-right: 20px 10px; margin:5px 10px 5px 5px">#</span></h2>
                   <input id="search-input" type="text" class="search-query form-control " placeholder="Song Name,Artist,or both" />
                   <div class="input-group-append">
                     <button id="search-btn" class="btn btn-success" type="button" >Search</button>
@@ -41,7 +33,7 @@
 </nav>
 <div class="col-12">
   <div class="row" style="padding: 0px">
-    <div class="col-4 container-fluid" style="background-color:azure; min-height: 800px;"> 
+    <div class="col-4 container-fluid" style="background-color:rgb(206, 205, 205); min-height: 800px; margin:0px"> 
     <div class="col-12"><div id="queue" class="row"></div></div>
     </div>
 
@@ -51,6 +43,19 @@
 
   </div>
 </div>
+
+<nav class="navbar navbar-dark bg-dark fixed-bottom" style="margin: 0px">
+  <div class="col-12" style="padding: 0; margin: 0px">
+    <div class="btn-group btn-group-lg" style="padding: 0px 5px 0px 200px; margin: 0px" role="group" aria-label="group">
+      <button id="play-btn" class="btn btn-outline-success" type="button">Play</button>
+      <button id="pause-btn" class="btn btn-outline-success" type="button">Pause</button>
+      <button id="previous-btn" class="btn btn-outline-success" type="button">Previous</button>
+      <button id="next-btn" class="btn btn-outline-success" type="button">Next</button>
+      <button id="test-btn" class="btn btn-outline-success" type="button">Test</button>
+    </div>
+    <label style=" padding:8px 5px 14px 5px;" class="checkbox-inline border border-success rounded text-success"><input id="duplicate" type="checkbox" value="">Duplicates </label>
+  </div>
+</nav>
   <script>
   var player;
   window.onSpotifyWebPlaybackSDKReady = () => {
@@ -173,8 +178,8 @@
           const name = data.items[i].track.artists[0].name;
           const songName = data.items[i].track.name;
           $('#queue').append(
-              `<div class="col-12"style="styles.gallery.hover;padding:o px;">
-              <div style="styles.desc">${songName} - ${name}</div>
+              `<div class="col-12 shadow-sm p-4 mb-4"style="padding: -10px; margin: 0px">
+              <div style="margin:0px">${songName} - ${name}</div>
               </div>`
           );
         }
