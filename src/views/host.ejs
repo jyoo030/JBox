@@ -26,6 +26,7 @@
           </div>
           <div>
             <label style="color:white" class="checkbox-inline"><input id="duplicate" type="checkbox" value="">Duplicates</label>
+            <label style="color:white" class="checkbox-inline"><input id="repeat" type="checkbox" value="">Repeat</label>
           </div>
         </div>
           <div id="col-8 custom-search-input" style="padding: 10px;">
@@ -117,6 +118,18 @@
       });
     });
 
+    $('#repeat').change(function() {
+      if(this.checked) {
+        $.post("/host/repeatOn", {roomId: '<%= roomId %>'}, function(data) {
+
+        });
+      } else {
+        $.post("/host/repeatOff", {roomId: '<%= roomId %>'}, function(data) {
+
+        });
+      }
+    });
+
     $("test-btn").click(function() {
       $.ajax({
         url: 'host/getQueue',
@@ -164,14 +177,14 @@
     });
 
     $("#previous-btn").click(function() {
-      player.previousTrack().then(() => {
-        console.log('Previous Song!');
+      $.post("/host/previousTrack", {roomId: '<%= roomId %>'}, function(data) {
+
       });
     });
 
     $("#next-btn").click(function() {
-      player.nextTrack().then(() => {
-        console.log('Next Song!');
+      $.post("/host/nextTrack", {roomId: '<%= roomId %>'}, function(data) {
+
       });
     });
 
@@ -180,9 +193,9 @@
 
       });
 
-      // $.post("/host/getUserCount", {roomId: '<%= roomId %>'}, function(data) {
-      //
-      // });
+      $.post("/host/getUserCount", {roomId: '<%= roomId %>'}, function(data) {
+
+      });
     });
   })(jQuery);
   </script>
